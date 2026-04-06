@@ -43,13 +43,25 @@ var events = {
 
 
 function ProjectWindow(filePath) {
-    const getThemeFromMenu = () => Menu.getApplicationMenu().items.find(
-        e => e.label.toLowerCase() === '&view'
-    ).submenu.items.find(
-        e => e.label.toLowerCase() === 'theme'
-    ).submenu.items.find(
-        e => e.checked
-    ).label.toLowerCase();
+    const getThemeFromMenu = () => {
+        try {
+            const appMenu = Menu.getApplicationMenu();
+            if (!appMenu) return null;
+            const viewMenu = appMenu.items.find(
+                e => e.label.toLowerCase() === '&view'
+            );
+            if (!viewMenu || !viewMenu.submenu) return null;
+            const themeMenu = viewMenu.submenu.items.find(
+                e => e.label.toLowerCase() === 'theme'
+            );
+            if (!themeMenu || !themeMenu.submenu) return null;
+            const checkedItem = themeMenu.submenu.items.find(e => e.checked);
+            return checkedItem ? checkedItem.label.toLowerCase() : null;
+        } catch(e) {
+            console.warn("[Inky] getThemeFromMenu failed:", e.message);
+            return null;
+        }
+    };
 
     electronWindowOptions.title = i18n._("Inky");
     this.browserWindow = new BrowserWindow(electronWindowOptions);
@@ -94,9 +106,11 @@ function ProjectWindow(filePath) {
 
     // Set up theme/zoom from settings
     this.browserWindow.webContents.on('dom-ready', () => {
-        this.browserWindow.send("change-theme", getThemeFromMenu());
-
         let settings = ProjectWindow.getViewSettings();
+        const themeFromMenu = getThemeFromMenu();
+        const themeToApply = themeFromMenu || settings.theme || 'light';
+        this.browserWindow.send("change-theme", themeToApply);
+
         this.zoom(settings.zoom);
         this.browserWindow.webContents.send('set-animation-enabled', settings.animationEnabled);
         this.browserWindow.webContents.send('set-autocomplete-disabled', !!settings.autoCompleteDisabled);

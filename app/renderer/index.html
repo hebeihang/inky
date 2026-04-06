@@ -160,6 +160,13 @@
   <!-- <script src="acesrc/ace-min.js" type="text/javascript" charset="utf-8"></script> -->
   <!-- <script src="acesrc/ext-language_tools-min.js"></script> -->
 
+  <!-- 【Sushibook 实验】将 Pretext ES Module 暴露给全局 window -->
+  <script type="module">
+    import * as pretext from '../node_modules/@chenglou/pretext/dist/layout.js';
+    window.pretext = pretext;
+    console.log("【Sushibook 实验】ESM 模块通过 HTML 注入成功");
+  </script>
+
   <script>
     require('./controller.js');
   </script>

@@ -113,6 +113,16 @@ function prepareForNewPlaythrough(sessionId) {
 
 function addTextSection(text)
 {
+    // 【Sushibook 实验】调用 Pretext 分析文字排版信息
+    if (window.pretext && window.pretext.prepare && text && text.trim().length > 0) {
+        try {
+            const prepared = window.pretext.prepare(text, "16px sans-serif");
+            console.log("【Sushibook 实验】Pretext 算出的行数:", prepared);
+        } catch(e) {
+            console.warn("【Sushibook 实验】Pretext prepare() 出错:", e.message);
+        }
+    }
+
     var $paragraph = $("<p class='storyText'></p>");
 
     // Game-specific instruction prefix, e.g. >>> START CAMERA: Wide shot
